@@ -11,26 +11,28 @@ logging.basicConfig(level=logging.DEBUG,
 
 THIS_FILEPATH = os.path.realpath(os.path.dirname(sys.argv[0]))
 
-DEBUG = True
+DEBUG = False
 
 
 
 
 class QMainWindow2(QMainWindow):
-    if not DEBUG:
-        def closeEvent(self,event):
-            result = QMessageBox.question(self,
-                          "Confirm exit", 
-                          "Confirm exit? Save splits manually before closing.",
-                          QMessageBox.Yes| QMessageBox.No)
-            event.ignore()
+    # if not DEBUG:
+    #     def closeEvent(self,event):
+    #         result = QMessageBox.question(self,
+    #                       "Confirm exit", 
+    #                       "Confirm exit? Save splits manually before closing.",
+    #                       QMessageBox.Yes| QMessageBox.No)
+    #         event.ignore()
     
-            if result == QMessageBox.Yes:
-                event.accept()
+    #         if result == QMessageBox.Yes:
+    #             event.accept()
+    pass
+
 
 class MainWindow(object):
     
-    size = 2
+    size = 1
     
     if size == 1:
         SCREEN_HEIGHT = 480
