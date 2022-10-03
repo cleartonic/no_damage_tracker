@@ -108,8 +108,8 @@ class MainWindow(object):
         self.splits_path = ""
         self.splits_dict = {}
         
-        for k, v in self.splits_dict.items():
-            print("%s: %s" % (k,v))
+        # for k, v in self.splits_dict.items():
+        #     print("%s: %s" % (k,v))
     
         self.splits = list(self.splits_dict.keys())
         self.split_values = list(self.splits_dict.values())
@@ -314,7 +314,7 @@ class MainWindow(object):
 
     def start_click(self):
         if self.current_status == "waiting_for_splits":
-            print("WAITING FOR SPLITS")
+            # print("WAITING FOR SPLITS")
             QMessageBox.about(self.window, "Error", "Load or create splits before starting")
             
         
@@ -351,7 +351,7 @@ class MainWindow(object):
             
     def reset_splits_click(self):
         if self.current_status == "waiting_for_splits":
-            print("WAITING FOR SPLITS")
+            # print("WAITING FOR SPLITS")
             QMessageBox.about(self.window, "Error", "Load splits before starting")        
         else:
             if self.current_status == "finished":
@@ -671,8 +671,8 @@ class MainWindow(object):
             
             self.splits_dict = d
             
-            for k, v in self.splits_dict.items():
-                print("%s: %s" % (k,v))
+            # for k, v in self.splits_dict.items():
+            #     print("%s: %s" % (k,v))
         
             self.splits = list(self.splits_dict.keys())
             self.split_values = list(self.splits_dict.values())
