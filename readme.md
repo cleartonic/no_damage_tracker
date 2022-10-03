@@ -7,7 +7,7 @@ A simple tracker for tracking hits or damage per split. This program is intentio
 
 
 ## Download
-Download the latest release as a standalone executable, and open `no_damage_tracker.exe`. This program uses Python as an engine, but should be able to be ran by any compatible computer without any further installations. Note that the first Save or Load command (which calls the operating system) may take awhile to load the window, but it will work after some time. 
+Download [the latest release](https://github.com/cleartonic/no_damage_tracker/releases), and unzip to a directory. Open `no_damage_tracker.exe`. This program uses Python as an engine, but should be able to be ran by any compatible computer without any further installations. Note that the first Save or Load command (which calls the operating system) may take awhile to load the window, but it will work after some time. 
 
 Python 3.6+ users can simply execute no_damage_tracker.py, with the following dependencies:
 
