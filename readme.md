@@ -1,7 +1,9 @@
 
 # No Damage Tracker
 
-A simple tracker for tracking hits or damage per split. 
+A simple tracker for tracking hits or damage per split. This program is intentionally lightweight and simple, and will show up to 8 splits at once. 
+
+<img src = 'screencap.png'></img>
 
 
 ## Download
@@ -17,7 +19,7 @@ Split C: 12
 ```
 
 ## Usage
-Splits must be either created in the program or loaded in advance. Use `Start` command to begin tracking, then use the middle green-outlined box to enter hits per split using the Enter key. Pressing Enter without inputting a split will default to 0. The `Reset` command will be usable at any time, but using `Reset` after getting a PB will confirm to both save the splits as PB, and confirm if the user would like to save splits to the file. 
+Splits must be either created in the program via the `Create` command, or loaded using the `Load` command. Use `Start` command to begin tracking, then use the middle green-outlined box to enter hits per split using the Enter key. Pressing Enter without inputting a split will default to 0. The `Reset` command will be usable at any time, but using `Reset` after getting a PB will confirm to both save the splits as PB, and confirm if the user would like to save splits to the file. 
 
 Note: Splits should be saved manually for updates, as the program will not check for saving splits upon being closed. Anytime a PB is achieved, the save splits dialog should appear anyhow. 
 

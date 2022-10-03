@@ -377,7 +377,7 @@ class MainWindow(object):
             d = {}
             for s in split_names:
                 if s:
-                    d[str(s)] = 10
+                    d[str(s).strip()] = 10
         
         self.splits_dict = d
         
@@ -530,10 +530,18 @@ class MainWindow(object):
         
     
     def show_current_splits(self):
+        
+        
+        
+        
         cur_idx = self.current_idx
         OFFSET = 4
         
-        if cur_idx <= 3:        
+        if self.end_idx < 8:
+            start = 0
+            end = self.end_idx
+        
+        elif cur_idx <= 3:        
             # print("SHOW: Top 6 splits")
             start = 0
             end = 8
