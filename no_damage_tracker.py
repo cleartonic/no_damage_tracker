@@ -195,19 +195,19 @@ class MainWindow(object):
         self.total_current.setGeometry(QtCore.QRect(self.TOTAL_CURRENT_X, self.TOTAL_LABEL_OFFSET + 30 * OFFSET, 35, 30))
         self.total_current.setAlignment(QtCore.Qt.AlignCenter)
         # self.total_current.setStyleSheet("border:2px solid rgb(255,255,255);font:bold;align:center; ")
-        self.total_current.setStyleSheet("font:bold;align:center; ")
+        self.total_current.setStyleSheet("font:bold")
 
         
         self.total_pb = QLabel(str(self.total_hits_pb), self.window)
         self.total_pb.setGeometry(QtCore.QRect(self.TOTAL_PB_X, self.TOTAL_LABEL_OFFSET + 30 * OFFSET, 35, 30))
         self.total_pb.setAlignment(QtCore.Qt.AlignCenter)
-        self.total_pb.setStyleSheet("font:bold;align:center;color: ")
+        self.total_pb.setStyleSheet("font:bold;")
 
 
         self.total_compare = QLabel("", self.window)
         self.total_compare.setGeometry(QtCore.QRect(self.TOTAL_COMPARE_X, self.TOTAL_LABEL_OFFSET + 30 * OFFSET, 35, 30))
         self.total_compare.setAlignment(QtCore.Qt.AlignCenter)
-        self.total_compare.setStyleSheet("font:bold;align:center;color: ")
+        self.total_compare.setStyleSheet("font:bold;")
  
 
 
@@ -278,7 +278,7 @@ class MainWindow(object):
             self.entry_current = QLabel("", self.window)
             self.entry_current.setGeometry(QtCore.QRect(self.ENTRY_CURRENT_X, 5 + 30 * OFFSET, 30, 30))
             self.entry_current.setAlignment(QtCore.Qt.AlignCenter)
-            self.entry_current.setStyleSheet("font:bold;align:center")
+            self.entry_current.setStyleSheet("font:bold;")
             self.entry_current.setProperty("idx",idx)
             self.entry_current.setProperty("widget_type","entry_current")
             self.entry_current.hide()
@@ -287,7 +287,7 @@ class MainWindow(object):
             self.entry_pb = QLabel(str(self.split_values[idx]), self.window)
             self.entry_pb.setGeometry(QtCore.QRect(self.ENTRY_PB_X, 5 + 30 * OFFSET, 30, 30))
             self.entry_pb.setAlignment(QtCore.Qt.AlignCenter)
-            self.entry_pb.setStyleSheet("font:bold;align:center;color: ")
+            self.entry_pb.setStyleSheet("font:bold;")
             self.entry_pb.setProperty("idx",idx)
             self.entry_pb.setProperty("widget_type","entry_pb")
             self.entry_pb.hide()
@@ -295,7 +295,7 @@ class MainWindow(object):
             self.entry_compare = QLabel("", self.window)
             self.entry_compare.setGeometry(QtCore.QRect(self.ENTRY_COMPARE_X, 5 + 30 * OFFSET, 30, 30))
             self.entry_compare.setAlignment(QtCore.Qt.AlignCenter)
-            self.entry_compare.setStyleSheet("font:bold;align:center;color: ")
+            self.entry_compare.setStyleSheet("font:bold;")
             self.entry_compare.setProperty("idx",idx)
             self.entry_compare.setProperty("widget_type","entry_compare")
             self.entry_compare.hide()

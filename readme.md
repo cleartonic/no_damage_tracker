@@ -9,6 +9,13 @@ A simple tracker for tracking hits or damage per split. This program is intentio
 ## Download
 Download the latest release as a standalone executable. This program uses Python as an engine, but should be able to be ran by any compatible computer without any further installations.
 
+Python 3.6+ users can simply execute no_damage_tracker.py, with the following dependencies:
+
+```
+yaml
+PyQt5
+```
+
 ## Setup
 The only external file for this program are splits files. These are simply `.txt` files that can be created manually or in the program. The following format for each split is required, with nothing else:
 
