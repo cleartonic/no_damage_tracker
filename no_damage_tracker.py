@@ -1,6 +1,7 @@
 import yaml, os, logging, sys
 from PyQt5.QtWidgets import  QLineEdit, QPushButton, QApplication, QMainWindow, \
-                            QFileDialog, QInputDialog, QLabel, QMessageBox, QWidget
+                            QFileDialog, QInputDialog, QLabel, QMessageBox, QWidget, QCheckBox, \
+                            QComboBox
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtGui import QPalette, QColor
 
@@ -13,24 +14,86 @@ THIS_FILEPATH = os.path.realpath(os.path.dirname(sys.argv[0]))
 
 DEBUG = False
 
+DEFAULT_SETTINGS = {"compare_column_sum_choice" : "Current Split"}
+
+class Second(QMainWindow):
+    SCREEN_WIDTH = 400
+    SCREEN_HEIGHT = 200
+    def __init__(self, parent=None):
+        super(Second, self).__init__(parent)
+        
+        self.init_settings_from_file()        
+        
+        self.setFixedSize(self.SCREEN_WIDTH,self.SCREEN_HEIGHT)        
+        self.compare_column_sum_label = QLabel("Compare column sum:", self)
+        self.compare_column_sum_label.setGeometry(QtCore.QRect(5, 10, 220, 40))
+        self.compare_column_sum_choice = QComboBox(self)
+        self.compare_column_sum_choice.addItem("Current Split")
+        self.compare_column_sum_choice.addItem("Total")
+        self.compare_column_sum_choice.setCurrentText(self.settings['compare_column_sum_choice'])
+        self.compare_column_sum_choice.setGeometry(QtCore.QRect(240, 10, 150, 40))
+        self.compare_column_sum_label.setToolTip('Current Split: Column sum will compare all current splits in run to PB splits up to the same point.\nTotal: Column sum will compare current splits in run to entire sum of PB.')
+        self.compare_column_sum_choice.setToolTip('Current Split: Column sum will compare all current splits in run to PB splits up to the same point.\nTotal: Column sum will compare current splits in run to entire sum of PB.')
+        
+        self.compare_column_sum_choice.activated[str].connect(self.update_settings)
+
+
+        self.setWindowTitle('Settings')
+        self.icon = QtGui.QIcon()
+        self.icon.addPixmap(QtGui.QPixmap(os.path.join(THIS_FILEPATH,"ico.ico")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.setWindowIcon(self.icon)
+        
 
 
 
-class QMainWindow2(QMainWindow):
-    # if not DEBUG:
-    #     def closeEvent(self,event):
-    #         result = QMessageBox.question(self,
-    #                       "Confirm exit", 
-    #                       "Confirm exit? Save splits manually before closing.",
-    #                       QMessageBox.Yes| QMessageBox.No)
-    #         event.ignore()
-    
-    #         if result == QMessageBox.Yes:
-    #             event.accept()
-    pass
+    def update_settings(self):
+        self.settings['compare_column_sum_choice'] = self.compare_column_sum_choice.currentText()
 
+    def init_settings_from_file(self):
 
-class MainWindow(object):
+        try:
+            with open("settings.txt", 'r') as f:
+                self.settings = yaml.safe_load(f)
+        except:
+            self.settings = DEFAULT_SETTINGS
+            self.save_settings_file()
+            
+    def save_settings_file(self):
+        with open("settings.txt", 'w') as f:
+            yaml.dump(self.settings,f)
+
+    w = None
+    def closeEvent(self, event):
+        if self.w:
+            self.w.close()
+        self.save_settings_file()
+            
+class MainWindow(QMainWindow):
+    def __init__(self, mainapp, app, parent = None):
+        super(QMainWindow, self).__init__(parent)
+        self.app = app
+        self.mainapp = mainapp
+
+    w = None
+    def closeEvent(self, event):
+        if self.w:
+            self.w.close()
+
+        self.app.closeAllWindows()
+    def wheelEvent(self,event):
+        if self.mainapp.current_status == "started" or self.mainapp.current_status == "not_started" or self.mainapp.current_status == "finished":
+            
+
+            
+            if event.angleDelta().y() > 0:
+                self.mainapp.current_idx_viewing -= 1
+            if event.angleDelta().y() < 0:
+                self.mainapp.current_idx_viewing += 1
+            self.mainapp.show_current_splits()
+            
+        
+        
+class MainApp(object):
     
     size = 1
     
@@ -40,9 +103,10 @@ class MainWindow(object):
         RESET_X = 125
         INPUT_X = 220
         UNDO_X = 280
-        LOAD_X = 60
-        CREATE_X = 195
-        SAVE_X = 325
+        LOAD_X = 40
+        CREATE_X = 140
+        SAVE_X = 240
+        SETTINGS_X = 340
         BOTTOM_BUTTON_Y = 440
         
         CURRENT_LABEL_X = 170
@@ -73,6 +137,7 @@ class MainWindow(object):
         LOAD_X = 60
         CREATE_X = 230
         SAVE_X = 390
+        SETTINGS_X = 480
         BOTTOM_BUTTON_Y = 440
         
         CURRENT_LABEL_X = 180
@@ -98,7 +163,7 @@ class MainWindow(object):
                 
     def __init__(self):
         self.app = QApplication([])
-        self.window = QMainWindow2()
+        self.window = MainWindow(self, self.app)
         self.window.setFixedSize(self.SCREEN_WIDTH,self.SCREEN_HEIGHT)
         self.window.setWindowTitle('No Damage Tracker')
         self.icon = QtGui.QIcon()
@@ -115,9 +180,11 @@ class MainWindow(object):
         self.split_values = list(self.splits_dict.values())
 
 
+        self.settings_window = Second()
 
 
         self.current_idx = 0
+        self.current_idx_viewing = 0
         self.current_status = "waiting_for_splits"
         
         self.end_idx = len(self.splits)
@@ -153,6 +220,10 @@ class MainWindow(object):
         self.save_button = QPushButton("Save",self.window)
         self.save_button.setGeometry(QtCore.QRect(self.SAVE_X, self.BOTTOM_BUTTON_Y, 80, 30))
         self.save_button.clicked.connect(self.save_splits)
+        
+        self.save_button = QPushButton("Settings",self.window)
+        self.save_button.setGeometry(QtCore.QRect(self.SETTINGS_X, self.BOTTOM_BUTTON_Y, 80, 30))
+        self.save_button.clicked.connect(self.settings_click)
         
 
 
@@ -284,7 +355,10 @@ class MainWindow(object):
             self.entry_current.hide()
 
             
-            self.entry_pb = QLabel(str(self.split_values[idx]), self.window)
+            pb_amt = str(self.split_values[idx])
+            if pb_amt == "99":
+                pb_amt = "-"
+            self.entry_pb = QLabel(pb_amt, self.window)
             self.entry_pb.setGeometry(QtCore.QRect(self.ENTRY_PB_X, 5 + 30 * OFFSET, 30, 30))
             self.entry_pb.setAlignment(QtCore.Qt.AlignCenter)
             self.entry_pb.setStyleSheet("font:bold;")
@@ -355,8 +429,16 @@ class MainWindow(object):
             QMessageBox.about(self.window, "Error", "Load splits before starting")        
         else:
             if self.current_status == "finished":
-                if int(self.total_current.text()) <= int(self.total_pb.text()):
-                    
+                self.reset_button.setText("Reset")
+                pass_flag = False
+                if self.total_pb.text() == "-":
+                    pass_flag = True
+
+                elif int(self.total_current.text()) <= int(self.total_pb.text()):
+                    pass_flag = True
+
+
+                if pass_flag:
                     qm = QMessageBox
                     ret = qm.question(self.window,'Keep splits?', "Use this run for PB splits?", qm.Yes | qm.No)
                     
@@ -379,7 +461,7 @@ class MainWindow(object):
             d = {}
             for s in split_names:
                 if s:
-                    d[str(s).strip()] = 10
+                    d[str(s).strip()] = 99
         
         self.splits_dict = d
         
@@ -389,7 +471,11 @@ class MainWindow(object):
             
 
 
+    def settings_click(self):
+        self.settings_window.show()
+        
 
+        
 
     def update_pb_splits(self):
         
@@ -420,6 +506,8 @@ class MainWindow(object):
         
     def reset_splits(self):
         self.current_idx = 0
+        self.current_idx_viewing = 0
+        self.show_current_splits()
         w = [i for i in self.window.children() if i.property("widget_type") == "entry"]
         for i in w:
             style = i.styleSheet()
@@ -476,8 +564,9 @@ class MainWindow(object):
         self.current_split_input.setText("")
 
         self.current_idx = self.current_idx + 1
+        self.current_idx_viewing = self.current_idx
         if self.current_idx == self.end_idx:
-            self.start_button.setText("Finish")
+            self.reset_button.setText("Finish")
             self.current_status = "finished"
             self.current_split_input.hide()
         else:
@@ -487,18 +576,25 @@ class MainWindow(object):
             self.show_current_splits()
         
     def calculate_compare(self):
+
         entry_compare = [i for i in self.window.children() if i.property("widget_type") == "entry_compare" and i.property("idx") == self.current_idx][0]
         entry_current = [i for i in self.window.children() if i.property("widget_type") == "entry_current" and i.property("idx") == self.current_idx][0]
         entry_pb = [i for i in self.window.children() if i.property("widget_type") == "entry_pb" and i.property("idx") == self.current_idx][0]
         
-        update_num = int(entry_current.text()) - int(entry_pb.text())
+        pb_amt = entry_pb.text()
         
-        if update_num < 0:
-            color = 'green'
-        elif update_num > 0:
-            color = 'red'
+        if pb_amt == "-":
+            update_num = "-"
+            color = "white"
         else:
-            color = 'white'
+            update_num = int(entry_current.text()) - int(pb_amt)
+        
+            if update_num < 0:
+                color = 'green'
+            elif update_num > 0:
+                color = 'red'
+            else:
+                color = 'white'
 
         style = entry_compare.styleSheet()
         style = "%s;color:%s;" % (style, color)
@@ -510,14 +606,47 @@ class MainWindow(object):
         self.calculate_total_compare()
 
     def calculate_total_compare(self):
-        update_num = int(self.total_current.text()) - int(self.total_pb.text())
         
-        if update_num < 0:
-            color = 'green'
-        elif update_num > 0:
-            color = 'red'
-        else:
-            color = 'white'
+        
+        
+        
+        if (self.settings_window.settings['compare_column_sum_choice'] == "Current Split"):
+
+            pb_total = self.total_pb.text()
+            
+            if pb_total == "-":
+                update_num = "-"
+                color = 'white'
+            else:
+                temp_num = 0
+                for idx in range(0, self.current_idx + 1):
+                    pb = [i for i in self.window.children() if i.property("widget_type") == "entry_pb" and i.property("idx") == idx][0]
+                    temp_num += int(pb.text())
+                    
+                update_num = int(self.total_current.text()) - temp_num
+                
+                if update_num < 0:
+                    color = 'green'
+                elif update_num > 0:
+                    color = 'red'
+                else:
+                    color = 'white'
+            
+        elif (self.settings_window.compare_column_sum_choice.currentText() == "Total"):
+            pb_total = self.total_pb.text()
+            
+            if pb_total == "-":
+                color = 'white'
+                update_num = "-"
+            else:
+                update_num = int(self.total_current.text()) - int(pb_total)
+        
+                if update_num < 0:
+                    color = 'green'
+                elif update_num > 0:
+                    color = 'red'
+                else:
+                    color = 'white'
 
         
         update_text = str(update_num)
@@ -536,7 +665,7 @@ class MainWindow(object):
         
         
         
-        cur_idx = self.current_idx
+        cur_idx = self.current_idx_viewing
         OFFSET = 4
         
         if self.end_idx < 8:
@@ -635,8 +764,11 @@ class MainWindow(object):
             self.current_status = "started"
     
     def save_splits(self, bypass=False, use_splits_path=False):
+        
+        if self.current_status == 'finished':
+            QMessageBox.about(self.window, "Error", "Finish/Reset splits before saving")
 
-        if self.current_status != 'waiting_for_splits' or bypass:
+        elif self.current_status != 'waiting_for_splits' or bypass:
             
             if not use_splits_path:
             
@@ -685,8 +817,12 @@ class MainWindow(object):
             self.end_idx = len(self.splits)
             
             self.total_hits = 0
+            pb_sum = sum(self.split_values)
             
-            self.total_hits_pb = sum(self.split_values)
+            if pb_sum % 99 == 0:
+                pb_sum = "-"
+            
+            self.total_hits_pb = pb_sum
             self.total_pb.setText(str(self.total_hits_pb))
     
             
@@ -702,6 +838,6 @@ class MainWindow(object):
             
             
 if __name__ == '__main__':
-    main_window = MainWindow()
+    main_window = MainApp()
     main_window.window.show()
     main_window.app.exec_()
