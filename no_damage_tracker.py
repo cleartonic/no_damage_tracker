@@ -95,14 +95,16 @@ class MainWindow(QMainWindow):
         
 class MainApp(object):
     
-    size = 1
+    size =  1
     
     if size == 1:
         SCREEN_HEIGHT = 480
         SCREEN_WIDTH = 480
-        RESET_X = 125
+        RESET_X = 95
         INPUT_X = 220
-        UNDO_X = 280
+        UNDO_X = 355
+        DECREMENT_X = 185
+        INCREMENT_X = 265
         LOAD_X = 40
         CREATE_X = 140
         SAVE_X = 240
@@ -133,12 +135,15 @@ class MainApp(object):
         SCREEN_WIDTH = 540
         RESET_X = 140
         INPUT_X = 250
-        UNDO_X = 325
+        UNDO_X = 355
         LOAD_X = 60
-        CREATE_X = 230
-        SAVE_X = 390
-        SETTINGS_X = 480
+        CREATE_X = 150
+        SAVE_X = 240
+        SETTINGS_X = 330
         BOTTOM_BUTTON_Y = 440
+        
+        DECREMENT_X = 210
+        INCREMENT_X = 270
         
         CURRENT_LABEL_X = 180
         PB_LABEL_X = 320
@@ -156,9 +161,9 @@ class MainApp(object):
         ENTRY_COMPARE_X = TOTAL_COMPARE_X + 0
 
         
-        FONT_SIZE = 16
+        FONT_SIZE = 14
         
-        ENTRY_X_SIZE = 200
+        ENTRY_X_SIZE = 220
         
                 
     def __init__(self):
@@ -227,6 +232,18 @@ class MainApp(object):
         
 
 
+        self.increment_button = QPushButton("+",self.window)
+        self.increment_button.setGeometry(QtCore.QRect(self.INCREMENT_X, 5, 30, 30))
+        self.increment_button.clicked.connect(self.increment_click)
+        # self.increment_button.returnPressed.connect(self.post_current_entry)
+        self.increment_button.hide()
+
+        self.decrement_button = QPushButton("-",self.window)
+        self.decrement_button.setGeometry(QtCore.QRect(self.DECREMENT_X, 5, 30, 30))
+        self.decrement_button.clicked.connect(self.decrement_click)
+        # self.decrement_button.returnPressed.connect(self.post_current_entry)
+        self.decrement_button.hide()
+        
 
         # self.video_button.clicked.connect(self.video_input_click)
         self.current_split_input = QLineEdit("",self.window)
@@ -403,7 +420,9 @@ class MainApp(object):
                     style = "%s;background-color:black;" % style
                 i.setStyleSheet(style)
     
-            self.current_split_input.show()    
+            self.current_split_input.show()
+            self.increment_button.show()
+            self.decrement_button.show()
             self.current_split_input.setFocus()
             self.start_button.hide()
             self.undo_button.show()
@@ -474,8 +493,32 @@ class MainApp(object):
     def settings_click(self):
         self.settings_window.show()
         
-
+            
+    def increment_click(self):
+        cur_num = self.current_split_input.text()
+        try:
+            cur_num = int(cur_num)
+        except:
+            cur_num = 0
         
+        cur_num += 1
+        self.current_split_input.setText(str(cur_num))
+        self.current_split_input.setFocus()
+            
+    def decrement_click(self):
+        cur_num = self.current_split_input.text()
+        
+        if cur_num:
+            try:
+                cur_num = int(cur_num)
+            except:
+                cur_num = 0
+            
+            cur_num -= 1
+            if cur_num < 0:
+                cur_num = 0
+            self.current_split_input.setText(str(cur_num))
+        self.current_split_input.setFocus()
 
     def update_pb_splits(self):
         
@@ -498,10 +541,11 @@ class MainApp(object):
         
     def confirm_pb_save(self):
         qm = QMessageBox
+
         ret = qm.question(self.window,'Save splits?', "Save splits to current split file?", qm.Yes | qm.No)
         
         if ret == qm.Yes:
-              self.save_splits(use_splits_path=True)
+              self.save_splits(use_splits_path=True, bypass=True)
 
         
     def reset_splits(self):
@@ -528,6 +572,9 @@ class MainApp(object):
         self.total_compare.setStyleSheet(style)        
         
         self.current_split_input.hide() 
+        self.increment_button.hide()
+        self.decrement_button.hide()
+
         self.undo_button.hide()
         self.total_hits = 0
         self.current_split_input.setText("")
@@ -755,6 +802,10 @@ class MainApp(object):
             self.update_total()
             self.calculate_total_compare()
             self.current_split_input.show()
+            self.increment_button.show()
+            self.decrement_button.show()
+
+            
             
 
             self.show_current_splits()
@@ -765,7 +816,7 @@ class MainApp(object):
     
     def save_splits(self, bypass=False, use_splits_path=False):
         
-        if self.current_status == 'finished':
+        if self.current_status == 'finished' and not bypass:
             QMessageBox.about(self.window, "Error", "Finish/Reset splits before saving")
 
         elif self.current_status != 'waiting_for_splits' or bypass:
